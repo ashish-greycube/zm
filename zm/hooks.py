@@ -80,9 +80,9 @@ doctype_js = {"Sales Order" : "public/js/sales_order.js"}
 # Hook on document methods and events
 
 doc_events = {
-	"Sales Order": {
-		"validate": "zm.api.update_SO_qty_based_on_width_height"
-	}
+	# "Sales Order": {
+	# 	"validate": "zm.api.update_SO_qty_based_on_width_height"
+	# }
 }
 
 # Scheduled Tasks
