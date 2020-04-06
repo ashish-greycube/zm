@@ -1,5 +1,5 @@
 frappe.ui.form.on('Sales Order', {
-	onload_post_render: function (frm) {
+	validate: function (frm) {
 			frm.trigger('set_customer_balance');
 		},
 		customer: function (frm) {
@@ -7,23 +7,23 @@ frappe.ui.form.on('Sales Order', {
 		},
 		set_customer_balance: function (frm) {
 			var customer = frm.doc.customer
-			if (customer) {
+			var transaction_date=frm.doc.transaction_date
+			if (customer && transaction_date) {
 				return frappe.call({
 					method: 'erpnext.accounts.utils.get_balance_on',
 					args: {
 						'party_type': 'Customer',
 						'party': customer,
-						'date': frappe.datetime.get_today(),
+						'date': transaction_date,
 						'company': frm.doc.company
 					},
 					callback: (r) => {
-						frm.set_df_property('customer', 'description', __("Todays balance is : {0}", [r.message]));
+						frm.set_value('customer_balance_cf', r.message)
 					},
 					error: (r) => {
 						console.log('error', r)
 					}
 				})
-
 			}
 		},
 	set_item_qty: function (frm, cdt, cdn) {

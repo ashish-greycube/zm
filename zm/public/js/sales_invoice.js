@@ -1,29 +1,40 @@
 frappe.ui.form.on('Sales Invoice', {
-	onload_post_render: function (frm) {
+	validate: function (frm) {
 		frm.trigger('set_customer_balance');
 	},
+	on_submit: function (frm) {
+		frm.trigger('set_customer_balance');
+	},	
 	customer: function (frm) {
 		frm.trigger('set_customer_balance');
 	},
 	set_customer_balance: function (frm) {
 		var customer = frm.doc.customer
-		if (customer) {
+		var posting_date=frm.doc.posting_date
+		if (customer && posting_date) {
 			return frappe.call({
 				method: 'erpnext.accounts.utils.get_balance_on',
 				args: {
 					'party_type': 'Customer',
 					'party': customer,
-					'date': frappe.datetime.get_today(),
+					'date': posting_date,
 					'company': frm.doc.company
 				},
 				callback: (r) => {
-					frm.set_df_property('customer', 'description', __("Today's balance is : {0}", [r.message]));
+					console.log('frm.doc.docstatus',frm.doc.docstatus)
+					var base_grand_total=frm.doc.base_grand_total
+					var status=frm.doc.docstatus
+					if (base_grand_total && (status==0)) {
+						var balance_with_si=base_grand_total+r.message
+						frm.set_value('customer_balance_cf',balance_with_si)
+					} else {
+						frm.set_value('customer_balance_cf', r.message)
+					}
 				},
 				error: (r) => {
 					console.log('error', r)
 				}
 			})
-
 		}
 	},	
 	set_item_qty: function (frm, cdt, cdn) {
