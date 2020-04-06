@@ -1,4 +1,31 @@
 frappe.ui.form.on('Sales Invoice', {
+	onload_post_render: function (frm) {
+		frm.trigger('set_customer_balance');
+	},
+	customer: function (frm) {
+		frm.trigger('set_customer_balance');
+	},
+	set_customer_balance: function (frm) {
+		var customer = frm.doc.customer
+		if (customer) {
+			return frappe.call({
+				method: 'erpnext.accounts.utils.get_balance_on',
+				args: {
+					'party_type': 'Customer',
+					'party': customer,
+					'date': frappe.datetime.get_today(),
+					'company': frm.doc.company
+				},
+				callback: (r) => {
+					frm.set_df_property('customer', 'description', __("Today's balance is : {0}", [r.message]));
+				},
+				error: (r) => {
+					console.log('error', r)
+				}
+			})
+
+		}
+	},	
 	set_item_qty: function (frm, cdt, cdn) {
 		let row = frappe.get_doc(cdt, cdn);
 		let widht_cf = row.widht_cf
