@@ -51,7 +51,7 @@ frappe.ui.form.on('Sales Invoice', {
 				height_cf = row.minimum_height_cf
 			}
 
-			row.qty = (nos_cf * widht_cf * height_cf) / 10000;
+			row.qty = flt((nos_cf * widht_cf * height_cf) / 10000, precision("qty", row) || cint(frappe.defaults.get_default("float_precision")) || 2 );
 			console.log('row.qty', row.qty)
 			frm.refresh_field('items');
 		}
